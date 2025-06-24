@@ -1,19 +1,23 @@
 "use client";
 
-import { bebasNeue } from "./ui/fonts";
-import LoginInput from "./ui/loginInput";
+import { bebasNeue } from "../../../app/ui/fonts";
+import LoginInput from "../../../app/ui/loginInput";
+import { signInWithCredentials } from "../../lib/actions/auth";
 
-import { useActionState } from "react";
-import { authenticate } from "@/app/lib/actions";
-import { useSearchParams } from "next/navigation";
+let errorMessage = "";
+
+async function handleSubmit(data: FormData) {
+  const id = data.get("id");
+  const password = data.get("password");
+  if (typeof id === "string" && typeof password === "string") {
+    const { success, error } = await signInWithCredentials({ id, password });
+    errorMessage = error;
+  } else {
+    errorMessage = "ID and Password are required.";
+  }
+}
 
 export default function Home() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-  const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
-    undefined
-  );
   return (
     <div className="flex min-w-screen h-screen bg-gradient-to-r from-emerald-400 to-cyan-400 flex-col items-center">
       <div
@@ -22,13 +26,13 @@ export default function Home() {
         Welcome to LMS
       </div>
       <form
-        action={formAction}
+        action={handleSubmit}
         className="flex flex-col min-w-40 w-1/4 h-1/2 items-center justify-center bg-indigo-200 mt-10 rounded-2xl shadow-2xl shadow-blue-500 transition duration-300 hover:scale-105 "
       >
         <div className={`text-2xl ${bebasNeue.className}`}>Login</div>
-        <LoginInput labelText="ID" type="text" />
-        <LoginInput labelText="Password" type="password" />
-        <input type="hidden" name="redirectTo" value={callbackUrl} />
+        <LoginInput labelText="ID" type="text" name="id" />
+        <LoginInput labelText="Password" type="password" name="password" />
+        {/* <input type="hidden" name="redirectTo" value={callbackUrl} /> */}
         <button
           className="rounded-md bg-green-600 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-green-700 focus:shadow-none active:bg-green-700 hover:bg-green-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2"
           type="submit"

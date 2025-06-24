@@ -5,9 +5,11 @@ import { useState } from "react";
 export default function LoginInput({
   labelText,
   type,
+  name,
 }: {
   labelText?: string;
   type?: string;
+  name?: string;
 }) {
   const [value, setValue] = useState("");
 
@@ -18,6 +20,7 @@ export default function LoginInput({
         required
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        name={name}
         className="bg-transparent border-0 border-b-2 border-b-blue-800 focus:border-blue-400 text-black text-lg w-full py-3 focus:outline-none peer"
       />
       <label className="absolute top-3 left-0 pointer-events-none">

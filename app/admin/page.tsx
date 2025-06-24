@@ -1,4 +1,12 @@
-export default function adminPage() {
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+
+export default async function adminPage() {
+  const session = await auth();
+  if (session?.user.role !== "admin") {
+    redirect("/unauthorized");
+  }
+
   return (
     <div>
       <h1>Admin Dashboard</h1>

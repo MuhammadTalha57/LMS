@@ -1,5 +1,10 @@
 export type User = {
   id: string;
-  type: "student" | "teacher" | "admin";
+  role: "student" | "teacher" | "admin";
   password: string;
 };
+
+export interface AuthCredentials {
+  id: string;
+  password: string;
+}
