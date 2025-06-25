@@ -10,10 +10,9 @@ export default async function Dashboard({
   const { role } = await params;
   const session = await auth();
 
-  //console.log(await params.role);
   if (!session) redirect("/signin");
 
-  if (role !== session.user.role) {
+  if (role !== session?.user?.role) {
     redirect("/unauthorized");
   }
 

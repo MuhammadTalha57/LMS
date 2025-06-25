@@ -4,18 +4,14 @@ import LoginInput from "../../../app/ui/loginInput";
 import { handleSubmit } from "../../lib/actions/auth";
 import { auth } from "@/auth";
 
-interface PageProps {
-  searchParams?: {
-    error?: string;
-  };
-}
-
-export default async function Home({ searchParams }: PageProps) {
+export default async function Home({ searchParams }: any) {
   const session = await auth();
   if (session) {
     redirect("/dashboard");
   }
-  const errorMessage = searchParams?.error || "";
+
+  const errorMessage = (await searchParams).error;
+
   return (
     <div className="flex min-w-screen h-screen bg-gradient-to-r from-emerald-400 to-cyan-400 flex-col items-center">
       <div
