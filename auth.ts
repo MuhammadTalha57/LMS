@@ -1,6 +1,6 @@
 import sql from "./app/db/index";
 import type { User } from "@/app/lib/definitions";
-import { compare } from "bcrypt";
+import { compare, hash } from "bcryptjs";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -38,9 +38,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
-          console.log("Mapped User: ", mappedUser);
+          //console.log("Mapped User: ", mappedUser);
+
+          const pass = await hash("iamadmin", 10);
+          //console.log("Hashed Pass: ", pass);
 
           // Validating Password
+          //console.log("Credentials:", credentials.password);
           const isPasswordsMatch = await compare(
             credentials.password as string,
             mappedUser.password
@@ -51,7 +55,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
-          console.log("Password Match");
+          //console.log("Password Match");
 
           return {
             id: mappedUser.id,
@@ -81,7 +85,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.role = token.role as "student" | "teacher" | "admin";
       }
-      console.log("SESSION Returned", session);
+      //console.log("SESSION Returned", session);
       return session;
     },
   },
