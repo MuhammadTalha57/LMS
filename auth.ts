@@ -11,46 +11,53 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     CredentialsProvider({
       async authorize(credentials) {
-        if (!credentials.id || !credentials.password) {
-          return null;
-        }
-
-        // Fetching User
-        console.log("Fetching user with ID:", credentials.id);
-        let mappedUser: User | undefined;
         try {
-          const user =
-            await sql`SELECT * FROM users WHERE id=${credentials.id}`;
-          if (!user[0]) return null;
-          const dbUser = user[0];
-          mappedUser = {
-            id: dbUser.id,
-            role: dbUser.role,
-            password: dbUser.password,
-          };
+          if (!credentials.id || !credentials.password) {
+            return null;
+          }
+
+          // Fetching User
+          console.log("Fetching user with ID:", credentials.id);
+          let mappedUser: User | undefined;
+          try {
+            const user =
+              await sql`SELECT * FROM users WHERE id=${credentials.id}`;
+            if (!user[0]) return null;
+            const dbUser = user[0];
+            mappedUser = {
+              id: dbUser.id,
+              role: dbUser.role,
+              password: dbUser.password,
+            };
+          } catch (error) {
+            console.error("Failed to fetch user:", error);
+            throw new Error("Failed to fetch user.");
+          }
+
+          if (!mappedUser) {
+            return null;
+          }
+
+          console.log("Mapped User: ", mappedUser);
+
+          // Validating Password
+          const isPasswordsMatch = await compare(
+            credentials.password as string,
+            mappedUser.password
+          );
+
+          if (!isPasswordsMatch) {
+            return null;
+          }
+
+          return {
+            id: mappedUser.id,
+            role: mappedUser.role as "student" | "teacher" | "admin",
+          } as User;
         } catch (error) {
-          console.error("Failed to fetch user:", error);
-          throw new Error("Failed to fetch user.");
-        }
-
-        if (!mappedUser) {
+          console.log("ERROR: ", error);
           return null;
         }
-
-        // Validating Password
-        const isPasswordsMatch = await compare(
-          credentials.password as string,
-          mappedUser.password
-        );
-
-        if (!isPasswordsMatch) {
-          return null;
-        }
-
-        return {
-          id: mappedUser.id,
-          role: mappedUser.role as "student" | "teacher" | "admin",
-        } as User;
       },
     }),
   ],

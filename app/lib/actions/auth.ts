@@ -22,7 +22,7 @@ export const signInWithCredentials = async (
 
     return { success: true, error: "" };
   } catch (error) {
-    //console.log(error, "Sign in error");
+    console.log(error, "Sign in error");
     return { success: false, error: "Incorrect Credentials" };
   }
 };
