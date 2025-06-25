@@ -2,12 +2,12 @@ import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import { signout } from "@/app/lib/actions/auth";
 
-export default async function DepartmentPage({
+export default async function Dashboard({
   params,
 }: {
-  params: { role: string };
+  params: Promise<{ role: string }>;
 }) {
-  const role = params.role;
+  const { role } = await params;
   const session = await auth();
 
   //console.log(await params.role);
