@@ -1,33 +1,19 @@
 import { redirect } from "next/navigation";
 import { bebasNeue } from "../../../app/ui/fonts";
 import LoginInput from "../../../app/ui/loginInput";
-import { signInWithCredentials } from "../../lib/actions/auth";
+import { handleSubmit } from "../../lib/actions/auth";
 import { auth } from "@/auth";
 
-let errorMessage = "";
-
-async function handleSubmit(data: FormData) {
-  "use server";
-  const id = data.get("id");
-  const password = data.get("password");
-  if (typeof id === "string" && typeof password === "string") {
-    const { success, error } = await signInWithCredentials({ id, password });
-    errorMessage = error;
-    if (success) {
-      redirect("/dashboard");
-    } else {
-      console.log("Sign in Failed");
-    }
-  } else {
-    errorMessage = "ID and Password are required.";
-  }
-}
-
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: { error?: string };
+}) {
   const session = await auth();
   if (session) {
     redirect("/dashboard");
   }
+  const errorMessage = searchParams?.error || "";
   return (
     <div className="flex min-w-screen h-screen bg-gradient-to-r from-emerald-400 to-cyan-400 flex-col items-center">
       <div

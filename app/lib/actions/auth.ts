@@ -31,3 +31,19 @@ export const signout = async () => {
   await signOut();
   return redirect("/");
 };
+
+export const handleSubmit = async (data: FormData) => {
+  const id = data.get("id");
+  const password = data.get("password");
+  if (typeof id === "string" && typeof password === "string") {
+    const { success, error } = await signInWithCredentials({ id, password });
+
+    if (success) {
+      redirect("/dashboard");
+    } else {
+      redirect("/signin?error=" + encodeURIComponent(error || "Login failed"));
+    }
+  } else {
+    redirect("/signin?error=ID%20and%20Password%20are%20required");
+  }
+};
