@@ -47,8 +47,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           );
 
           if (!isPasswordsMatch) {
+            console.log("Passwords Mismatch");
             return null;
           }
+
+          console.log("Password Match");
 
           return {
             id: mappedUser.id,
