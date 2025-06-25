@@ -135,7 +135,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   pages: {
-    signIn: "/sign-in",
+    signIn: "/signin",
   },
   callbacks: {
     async jwt({ token, user }: any) {
@@ -151,6 +151,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.role = token.role as "student" | "teacher" | "admin";
       }
+      console.log("SESSION Returned", session);
       return session;
     },
   },

@@ -1,23 +1,33 @@
-"use client";
-
+import { redirect } from "next/navigation";
 import { bebasNeue } from "../../../app/ui/fonts";
 import LoginInput from "../../../app/ui/loginInput";
 import { signInWithCredentials } from "../../lib/actions/auth";
+import { auth } from "@/auth";
 
 let errorMessage = "";
 
 async function handleSubmit(data: FormData) {
+  "use server";
   const id = data.get("id");
   const password = data.get("password");
   if (typeof id === "string" && typeof password === "string") {
     const { success, error } = await signInWithCredentials({ id, password });
     errorMessage = error;
+    if (success) {
+      redirect("/dashboard");
+    } else {
+      console.log("Sign in Failed");
+    }
   } else {
     errorMessage = "ID and Password are required.";
   }
 }
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+  if (session) {
+    redirect("/dashboard");
+  }
   return (
     <div className="flex min-w-screen h-screen bg-gradient-to-r from-emerald-400 to-cyan-400 flex-col items-center">
       <div
@@ -32,7 +42,6 @@ export default function Home() {
         <div className={`text-2xl ${bebasNeue.className}`}>Login</div>
         <LoginInput labelText="ID" type="text" name="id" />
         <LoginInput labelText="Password" type="password" name="password" />
-        {/* <input type="hidden" name="redirectTo" value={callbackUrl} /> */}
         <button
           className="rounded-md bg-green-600 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-green-700 focus:shadow-none active:bg-green-700 hover:bg-green-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2"
           type="submit"
