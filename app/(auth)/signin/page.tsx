@@ -4,11 +4,13 @@ import LoginInput from "../../../app/ui/loginInput";
 import { handleSubmit } from "../../lib/actions/auth";
 import { auth } from "@/auth";
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams?: { error?: string };
-}) {
+interface PageProps {
+  searchParams?: {
+    error?: string;
+  };
+}
+
+export default async function Home({ searchParams }: PageProps) {
   const session = await auth();
   if (session) {
     redirect("/dashboard");
