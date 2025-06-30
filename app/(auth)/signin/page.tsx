@@ -1,20 +1,17 @@
-"use client";
-
-import { redirect, useSearchParams } from "next/navigation";
+import { redirect } from "next/navigation";
 import { bebasNeue } from "../../../components/ui/fonts";
 import LoginInput from "../../../components/ui/loginInput";
 import { handleSubmit } from "../../../lib/actions/auth";
-import { useSession } from "next-auth/react";
+import { auth } from "@/auth";
 
-export default function SignInPage() {
-  const { data: session, status } = useSession();
-  const searchParams = useSearchParams();
-  const errorMessage = searchParams.get("error");
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const session = await auth();
 
-  if (status === "loading") {
-    return <p>Loading...</p>;
-  }
-
+  const errorMessage = (await searchParams)?.error;
   if (session) {
     redirect("/dashboard");
   }
