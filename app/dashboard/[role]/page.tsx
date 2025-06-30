@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
-import { signout } from "@/app/lib/actions/auth";
+import { signout } from "@/lib/actions/auth";
 
 export default async function Dashboard({
   params,

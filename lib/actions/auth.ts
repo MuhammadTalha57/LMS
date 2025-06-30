@@ -1,6 +1,6 @@
 "use server";
 
-import { AuthCredentials } from "../definitions";
+import { AuthCredentials } from "../../app/lib/definitions";
 import { signIn } from "@/auth";
 import { signOut } from "@/auth";
 import { redirect } from "next/navigation";
@@ -29,6 +29,7 @@ export const signInWithCredentials = async (
 
 export const signout = async () => {
   await signOut();
+
   return redirect("/");
 };
 
@@ -41,9 +42,11 @@ export const handleSubmit = async (data: FormData) => {
     if (success) {
       redirect("/dashboard");
     } else {
+      //toast(error);
       redirect("/signin?error=" + encodeURIComponent(error || "Login failed"));
     }
   } else {
+    //toast("Please Enter Credentials");
     redirect("/signin?error=ID%20and%20Password%20are%20required");
   }
 };

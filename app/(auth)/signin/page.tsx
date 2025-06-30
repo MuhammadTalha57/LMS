@@ -1,21 +1,28 @@
-import { redirect } from "next/navigation";
-import { bebasNeue } from "../../../app/ui/fonts";
-import LoginInput from "../../../app/ui/loginInput";
-import { handleSubmit } from "../../lib/actions/auth";
-import { auth } from "@/auth";
+"use client";
 
-export default async function Home({ searchParams }: any) {
-  const session = await auth();
+import { redirect, useSearchParams } from "next/navigation";
+import { bebasNeue } from "../../../components/ui/fonts";
+import LoginInput from "../../../components/ui/loginInput";
+import { handleSubmit } from "../../../lib/actions/auth";
+import { useSession } from "next-auth/react";
+
+export default function SignInPage() {
+  const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
+  const errorMessage = searchParams.get("error");
+
+  if (status === "loading") {
+    return <p>Loading...</p>;
+  }
+
   if (session) {
     redirect("/dashboard");
   }
 
-  const errorMessage = (await searchParams).error;
-
   return (
     <div className="flex min-w-screen h-screen bg-gradient-to-r from-emerald-400 to-cyan-400 flex-col items-center">
       <div
-        className={`min-w-screen ${bebasNeue.className} text-8xl text-center  text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-700 p-5`}
+        className={`min-w-screen ${bebasNeue.className} text-8xl text-center text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-700 p-5`}
       >
         Welcome to LMS
       </div>
@@ -27,22 +34,15 @@ export default async function Home({ searchParams }: any) {
         <LoginInput labelText="ID" type="text" name="id" />
         <LoginInput labelText="Password" type="password" name="password" />
         <button
-          className="rounded-md bg-green-600 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-green-700 focus:shadow-none active:bg-green-700 hover:bg-green-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2"
+          className="rounded-md bg-green-600 py-2 px-4 text-sm text-white shadow-md hover:shadow-lg focus:bg-green-700"
           type="submit"
         >
           Login
         </button>
-        <div
-          className="flex h-8 items-end space-x-1"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          {errorMessage && (
-            <>
-              <p className="text-sm text-red-500">{errorMessage}</p>
-            </>
-          )}
-        </div>
+
+        {errorMessage && (
+          <p className="text-sm text-red-500 mt-2">{errorMessage}</p>
+        )}
       </form>
     </div>
   );

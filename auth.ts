@@ -1,8 +1,9 @@
-import sql from "./app/db/index";
-import type { User } from "@/app/lib/definitions";
+//import sql from "./app/db/index";
+import type { User } from "@/lib/actions/definitions";
 import { compare, hash } from "bcryptjs";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { getUserById } from "./lib/actions/queries";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
@@ -20,8 +21,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           console.log("Fetching user with ID:", credentials.id);
           let mappedUser: User | undefined;
           try {
-            const user =
-              await sql`SELECT * FROM users WHERE id=${credentials.id}`;
+            //const user =await sql`SELECT * FROM users WHERE id=${credentials.id}`;
+            const user = await getUserById(credentials.id as string);
             if (!user[0]) return null;
             const dbUser = user[0];
             mappedUser = {
