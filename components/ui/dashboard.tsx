@@ -1,6 +1,6 @@
 "use client";
 
-import { archivoBlack } from "./fonts";
+import { archivoBlack, bebasNeue } from "./fonts";
 
 import { Button } from "./button";
 
@@ -29,7 +29,9 @@ export default function Dashboard({
         </div>
       </nav>
 
-      <h1>{`Welcome to ${userRole} Dashboard`}</h1>
+      <h1 className="font-bold text-3xl">{`Welcome to ${
+        userRole.charAt(0).toUpperCase() + userRole.slice(1)
+      } Dashboard`}</h1>
 
       {children}
     </div>
