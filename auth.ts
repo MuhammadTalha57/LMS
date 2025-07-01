@@ -23,8 +23,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           try {
             //const user =await sql`SELECT * FROM users WHERE id=${credentials.id}`;
             const user = await getUserById(credentials.id as string);
-            if (!user[0]) return null;
-            const dbUser = user[0];
+            if (!user) return null;
+            const dbUser = user;
             mappedUser = {
               id: dbUser.id,
               role: dbUser.role,

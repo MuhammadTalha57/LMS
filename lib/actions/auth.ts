@@ -1,6 +1,6 @@
 "use server";
 
-import { AuthCredentials } from "../../app/lib/definitions";
+import { AuthCredentials } from "../actions/definitions";
 import { signIn } from "@/auth";
 import { signOut } from "@/auth";
 import { redirect } from "next/navigation";
