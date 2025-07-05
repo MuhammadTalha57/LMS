@@ -3,15 +3,9 @@ import { redirect } from "next/navigation";
 import Dashboard from "@/components/ui/dashboard";
 import { getUserNameById } from "@/lib/actions/queries";
 import { signout } from "@/lib/actions/auth";
-import CardHolder from "@/components/ui/cardsHolder";
 import AdminDashboardChildren from "@/components/ui/adminDashboardChildren";
 import TeacherDashboardChildren from "@/components/ui/teacherDashboardChildren";
 import StudentDashboardChildren from "@/components/ui/studentDashboardChildren";
-
-type ButtonProps = {
-  text: string;
-  handleClick: () => void;
-};
 
 export default async function DashboardPage({
   params,
@@ -34,14 +28,20 @@ export default async function DashboardPage({
       userRole={session.user.role}
       userName={userName}
       handleSignOut={signout}
+      backBtnHidden={true}
       children={
-        role === "admin" ? (
-          <AdminDashboardChildren></AdminDashboardChildren>
-        ) : role === "teacher" ? (
-          <TeacherDashboardChildren></TeacherDashboardChildren>
-        ) : (
-          <StudentDashboardChildren></StudentDashboardChildren>
-        )
+        <div className="flex flex-col gap-y-4 items-center">
+          <h1 className="font-bold text-3xl">{`Welcome to ${
+            role.charAt(0).toUpperCase() + role.slice(1)
+          } Dashboard`}</h1>
+          {role === "admin" ? (
+            <AdminDashboardChildren></AdminDashboardChildren>
+          ) : role === "teacher" ? (
+            <TeacherDashboardChildren></TeacherDashboardChildren>
+          ) : (
+            <StudentDashboardChildren></StudentDashboardChildren>
+          )}
+        </div>
       }
     ></Dashboard>
   );

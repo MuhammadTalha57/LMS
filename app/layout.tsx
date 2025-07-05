@@ -2,6 +2,7 @@
 import "./globals.css";
 //import { auth } from "@/auth"; // 👈 make sure this points to your NextAuth setup
 import { SessionProvider } from "next-auth/react";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function RootLayout({
   children,
@@ -11,7 +12,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <SessionProvider>
-        <body>{children}</body>
+        <body>
+          <main>{children}</main>
+          <Toaster />
+        </body>
       </SessionProvider>
     </html>
   );
