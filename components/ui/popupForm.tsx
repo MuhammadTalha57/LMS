@@ -1,10 +1,8 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,26 +32,26 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
-// Define field types
-export type FieldType =
-  | "text"
-  | "email"
-  | "password"
-  | "number"
-  | "textarea"
-  | "select"
-  | "checkbox";
-
+// Enhanced field configuration interface
 export interface FieldConfig {
   name: string;
   label: string;
-  type: FieldType;
+  type:
+    | "text"
+    | "email"
+    | "password"
+    | "number"
+    | "textarea"
+    | "select"
+    | "checkbox";
   placeholder?: string;
   description?: string;
   required?: boolean;
-  minLength?: number;
-  maxLength?: number;
-  options?: { value: string; label: string }[]; // For select fields
+  minLength?: number; // For strings
+  maxLength?: number; // For strings
+  min?: number; // For numbers
+  max?: number; // For numbers
+  options?: { value: string; label: string }[];
   defaultValue?: string | number | boolean;
 }
 
@@ -67,7 +65,7 @@ export interface AddUserDialogProps {
   submitButtonText?: string;
 }
 
-// Helper function to create zod schema from field configs
+// Enhanced helper function to create zod schema with proper number validation
 function createZodSchema(fields: FieldConfig[]) {
   const schemaFields: Record<string, z.ZodTypeAny> = {};
 
@@ -79,7 +77,53 @@ function createZodSchema(fields: FieldConfig[]) {
         fieldSchema = z.string().email("Invalid email address");
         break;
       case "number":
-        fieldSchema = z.coerce.number();
+        if (field.required) {
+          // For required number fields, first check if it's not empty, then coerce to number
+          fieldSchema = z
+            .string()
+            .min(1, `${field.label} is required`)
+            .transform((val) => {
+              const num = Number(val);
+              if (isNaN(num)) {
+                throw new Error(`${field.label} must be a valid number`);
+              }
+              return num;
+            })
+            .refine((val) => !isNaN(val), {
+              message: `${field.label} must be a valid number`,
+            });
+        } else {
+          // For optional number fields, allow empty string or valid number
+          fieldSchema = z
+            .string()
+            .optional()
+            .transform((val) => {
+              if (!val || val === "") return undefined;
+              const num = Number(val);
+              if (isNaN(num)) {
+                throw new Error(`${field.label} must be a valid number`);
+              }
+              return num;
+            });
+        }
+
+        // Apply number-specific validations after transformation
+        if (field.min !== undefined) {
+          fieldSchema = fieldSchema.refine(
+            (val) => val === undefined || val >= field.min!,
+            {
+              message: `Must be at least ${field.min}`,
+            }
+          );
+        }
+        if (field.max !== undefined) {
+          fieldSchema = fieldSchema.refine(
+            (val) => val === undefined || val <= field.max!,
+            {
+              message: `Must be no more than ${field.max}`,
+            }
+          );
+        }
         break;
       case "checkbox":
         fieldSchema = z.boolean();
@@ -88,9 +132,17 @@ function createZodSchema(fields: FieldConfig[]) {
         fieldSchema = z.string();
     }
 
-    // Apply string validations
+    // Apply string validations (only for non-number, non-checkbox fields)
     if (field.type !== "number" && field.type !== "checkbox") {
-      if (field.minLength) {
+      // For required string fields, ensure they're not empty
+      if (field.required) {
+        fieldSchema = (fieldSchema as z.ZodString).min(
+          1,
+          `${field.label} is required`
+        );
+      }
+
+      if (field.minLength && field.minLength > 1) {
         fieldSchema = (fieldSchema as z.ZodString).min(
           field.minLength,
           `Must be at least ${field.minLength} characters`
@@ -104,8 +156,12 @@ function createZodSchema(fields: FieldConfig[]) {
       }
     }
 
-    // Handle required fields
-    if (!field.required && field.type !== "checkbox") {
+    // Handle optional fields (for non-number fields)
+    if (
+      !field.required &&
+      field.type !== "checkbox" &&
+      field.type !== "number"
+    ) {
       fieldSchema = fieldSchema.optional();
     }
 
@@ -130,10 +186,16 @@ export function PopupForm({
   const FormSchema = createZodSchema(fields);
   type FormData = z.infer<typeof FormSchema>;
 
-  // Create default values
+  // Create default values - use empty string for all input types except checkbox
   const defaultValues = fields.reduce((acc, field) => {
-    acc[field.name] =
-      field.defaultValue ?? (field.type === "checkbox" ? false : "");
+    if (field.defaultValue !== undefined) {
+      acc[field.name] = field.defaultValue;
+    } else if (field.type === "checkbox") {
+      acc[field.name] = false;
+    } else {
+      // Use empty string for all input types (including numbers)
+      acc[field.name] = "";
+    }
     return acc;
   }, {} as Record<string, any>);
 
@@ -163,7 +225,10 @@ export function PopupForm({
         name={field.name}
         render={({ field: formField }) => (
           <FormItem>
-            <FormLabel>{field.label}</FormLabel>
+            <FormLabel>
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </FormLabel>
             <FormControl>
               {field.type === "textarea" ? (
                 <Textarea placeholder={field.placeholder} {...formField} />
@@ -203,6 +268,10 @@ export function PopupForm({
                   type={field.type === "number" ? "number" : field.type}
                   placeholder={field.placeholder}
                   {...formField}
+                  // For number inputs, keep the value as string until validation
+                  onChange={(e) => {
+                    formField.onChange(e.target.value);
+                  }}
                 />
               )}
             </FormControl>
@@ -248,3 +317,64 @@ export function PopupForm({
     </Dialog>
   );
 }
+
+export const addTeacherFormFields: FieldConfig[] = [
+  {
+    name: "id",
+    label: "ID",
+    type: "number",
+    required: true,
+    min: 100000,
+    max: 999999,
+    placeholder: "Enter 6-digit ID",
+    description: "Enter a 6-digit teacher ID",
+  },
+  {
+    name: "password",
+    label: "Password",
+    type: "password",
+    required: true,
+    minLength: 6,
+    placeholder: "Enter Password",
+    description: "Password must be at least 6 characters",
+  },
+  {
+    name: "name",
+    label: "Name",
+    type: "text",
+    required: true,
+    minLength: 2,
+    maxLength: 100,
+    placeholder: "Enter Name",
+  },
+  {
+    name: "gender",
+    label: "Gender",
+    type: "select",
+    required: true,
+    placeholder: "Select Gender",
+    options: [
+      { value: "male", label: "Male" },
+      { value: "female", label: "Female" },
+    ],
+  },
+  {
+    name: "salary",
+    label: "Salary",
+    type: "number",
+    required: true,
+    min: 1, // Changed from 0 to 1 to ensure a positive salary
+    max: 999999999,
+    placeholder: "Enter Salary",
+    description: "Enter salary amount (minimum $1)",
+  },
+  {
+    name: "designation",
+    label: "Designation",
+    type: "text",
+    required: true,
+    minLength: 2,
+    maxLength: 50,
+    placeholder: "Enter Designation",
+  },
+];

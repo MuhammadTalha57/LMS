@@ -17,7 +17,8 @@ export const addTeacherFormFields: FieldConfig[] = [
     label: "ID",
     type: "number",
     required: true,
-    minLength: 6,
+    min: 100000,
+    max: 999999,
     placeholder: "Enter ID",
   },
   {
@@ -51,8 +52,8 @@ export const addTeacherFormFields: FieldConfig[] = [
     label: "Salary",
     type: "number",
     required: true,
-    maxLength: 10,
-    minLength: 0,
+    max: 999999999,
+    min: 0,
     placeholder: "Enter Salary",
   },
   {
