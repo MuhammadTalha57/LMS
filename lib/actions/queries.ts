@@ -126,3 +126,13 @@ export async function teacherSearchQuery(filters: Record<string, string>) {
   const result = await sql.query(baseQuery, values);
   return result;
 }
+
+export async function getTeacherDetails(id: string) {
+  try {
+    const sql = neon(`${process.env.DATABASE_URL}`);
+    const data = await sql`SELECT * FROM teachers WHERE id = ${id}`;
+    return data;
+  } catch (error) {
+    console.log("Error", error);
+  }
+}

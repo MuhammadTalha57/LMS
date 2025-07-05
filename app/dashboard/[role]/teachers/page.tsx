@@ -4,12 +4,14 @@ import Dashboard from "@/components/ui/dashboard";
 import {
   addTeacher,
   addUser,
+  getTeacherDetails,
   getUserNameById,
   teacherSearchQuery,
 } from "@/lib/actions/queries";
 import { signout } from "@/lib/actions/auth";
 import Search from "@/components/ui/search";
 import SearchTable from "@/components/ui/searchTable";
+import { addTeacherFormFields } from "@/lib/actions/definitions";
 
 export default async function DashboardPage({
   params,
@@ -40,6 +42,8 @@ export default async function DashboardPage({
             searchQuery={teacherSearchQuery}
             modifiable={true}
             addQuery={addTeacher}
+            descQuery={getTeacherDetails}
+            formFields={addTeacherFormFields}
           ></SearchTable>
         </div>
       }
