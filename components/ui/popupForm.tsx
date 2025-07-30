@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
-export interface AddUserDialogProps {
+export interface PopupFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   fields: FieldConfig[];
@@ -41,6 +41,7 @@ export interface AddUserDialogProps {
   title?: string;
   description?: string;
   submitButtonText?: string;
+  defaultValues?: Record<string, any>;
 }
 
 // Enhanced helper function to create zod schema with proper number validation
@@ -157,7 +158,8 @@ export function PopupForm({
   title = "Add New User",
   description = "Fill in the details to add a new user to the system.",
   submitButtonText = "Add User",
-}: AddUserDialogProps) {
+  defaultValues = {},
+}: PopupFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Create dynamic schema based on field configs
@@ -165,21 +167,31 @@ export function PopupForm({
   type FormData = z.infer<typeof FormSchema>;
 
   // Create default values - use empty string for all input types except checkbox
-  const defaultValues = fields.reduce((acc, field) => {
-    if (field.defaultValue !== undefined) {
-      acc[field.name] = field.defaultValue;
-    } else if (field.type === "checkbox") {
-      acc[field.name] = false;
+  const formDefaultValues = fields.reduce((acc, field) => {
+    const val = defaultValues[field.name];
+
+    if (val !== undefined && val !== null) {
+      if (field.type === "checkbox") {
+        acc[field.name] = Boolean(val);
+      } else if (field.type === "number") {
+        acc[field.name] = String(val); // Keep numbers as strings for input
+      } else {
+        acc[field.name] = String(val); // Ensure string input
+      }
     } else {
-      // Use empty string for all input types (including numbers)
-      acc[field.name] = "";
+      if (field.type === "checkbox") {
+        acc[field.name] = false;
+      } else {
+        acc[field.name] = "";
+      }
     }
+
     return acc;
   }, {} as Record<string, any>);
 
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
-    defaultValues,
+    defaultValues: formDefaultValues,
   });
 
   async function handleSubmit(data: FormData) {
@@ -209,11 +221,16 @@ export function PopupForm({
             </FormLabel>
             <FormControl>
               {field.type === "textarea" ? (
-                <Textarea placeholder={field.placeholder} {...formField} />
+                <Textarea
+                  placeholder={field.placeholder}
+                  {...formField}
+                  readOnly={field.readOnly}
+                />
               ) : field.type === "select" ? (
                 <Select
                   onValueChange={formField.onChange}
                   defaultValue={formField.value}
+                  disabled={field.readOnly}
                 >
                   <SelectTrigger>
                     <SelectValue
@@ -236,6 +253,7 @@ export function PopupForm({
                   <Checkbox
                     checked={formField.value}
                     onCheckedChange={formField.onChange}
+                    disabled={field.readOnly}
                   />
                   <span className="text-sm">
                     {field.description || field.label}
@@ -245,6 +263,7 @@ export function PopupForm({
                 <Input
                   type={field.type === "number" ? "number" : field.type}
                   placeholder={field.placeholder}
+                  readOnly={field.readOnly}
                   {...formField}
                   // For number inputs, keep the value as string until validation
                   onChange={(e) => {
@@ -265,7 +284,12 @@ export function PopupForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
+      <DialogContent
+        className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -280,12 +304,21 @@ export function PopupForm({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenChange(false);
+                }}
                 disabled={isSubmitting}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
                 {isSubmitting ? "Adding..." : submitButtonText}
               </Button>
             </DialogFooter>

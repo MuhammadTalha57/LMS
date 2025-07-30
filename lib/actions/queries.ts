@@ -44,20 +44,76 @@ export async function getUserNameById(id: string) {
 }
 
 export async function addUser(data: Record<string, any>) {
-  const hashedPass = await bcrypt.hash(data.password, 10);
 
+  // Id Should be unique
+  try {
+    const sql = neon(`${process.env.DATABASE_URL}`);
+    const result = await sql`SELECT 1 FROM users WHERE id = ${data.id} LIMIT 1`;
+
+    if (result.length > 0) {
+      throw new Error(`User with id ${data.id} already exists`);
+    }
+  } catch (error) {
+    if(error instanceof Error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+    else {
+      console.error("Failed to create user due to unkown error");
+      throw new Error("Unknown Error");
+    }
+  }
+  
+  const hashedPass = await bcrypt.hash(data.password, 10);
+  
   try {
     console.log("Creating User with data =", data);
+    
     const sql = neon(`${process.env.DATABASE_URL}`);
-
     await sql`
       INSERT INTO users (id, role, password)
       VALUES (${data.id}, ${data.role}, ${hashedPass})
     `;
     return true;
   } catch (error) {
-    console.error("Error creating user:", error);
-    throw new Error("Failed to create user");
+    if(error instanceof Error) {
+      console.error("Error creating User:", error);
+      throw new Error(error.message);
+    }
+    else {
+      console.error("Error creating user due to Unknown Error");
+      throw new Error("Unknown Error");
+    }
+  }
+}
+
+export async function updateUserPassword(data: Record<string, any>) {
+  try {
+    const sql = neon(`${process.env.DATABASE_URL}`);
+
+    // Optional: Check if user exists before updating
+    const existingUser = await sql`SELECT 1 FROM users WHERE id = ${data.id} LIMIT 1`;
+    if (existingUser.length === 0) {
+      throw new Error(`User with id ${data.id} does not exist`);
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    await sql`
+      UPDATE users
+      SET password = ${hashedPassword}
+      WHERE id = ${data.id}
+    `;
+
+    return true;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Error updating password:", error);
+      throw new Error(error.message);
+    } else {
+      console.error("Unknown error while updating password");
+      throw new Error("Unknown error");
+    }
   }
 }
 
@@ -68,9 +124,16 @@ export async function addTeacher(data: Record<string, any>) {
     const sql = neon(`${process.env.DATABASE_URL}`);
     await sql`INSERT INTO teachers (id, name, gender, salary, designation) VALUES (${data.id}, ${data.name}, ${data.gender}, ${data.salary}, ${data.designation})`;
     return true;
-  } catch (error) {
-    console.error("Error creating Teacher:", error);
-    throw new Error("Failed to create Teacher");
+  } catch (error: unknown) {
+    if(error instanceof Error) {
+      console.error("Error creating Teacher:", error);
+      throw new Error(error.message);
+    }
+    else {
+      console.error("Unknown error", error);
+      throw new Error("Unknown error");
+    }
+    
   }
 }
 
@@ -127,12 +190,40 @@ export async function teacherSearchQuery(filters: Record<string, string>) {
   return result;
 }
 
-export async function getTeacherDetails(id: string) {
+export async function getTeacherDetails(rowData: any) {
   try {
     const sql = neon(`${process.env.DATABASE_URL}`);
-    const data = await sql`SELECT * FROM teachers WHERE id = ${id}`;
+    const data = await sql`SELECT * FROM teachers WHERE id = ${rowData.id}`;
     return data;
   } catch (error) {
-    console.log("Error", error);
+    console.error("Error getting teacher details", error);
+    throw error;
+  }
+}
+
+export async function editTeacher(data: Record<string, any>) {
+  try {
+    const sql = neon(`${process.env.DATABASE_URL}`);
+
+    updateUserPassword(data);
+
+    await sql`
+      UPDATE teachers
+      SET name = ${data.name},
+          gender = ${data.gender},
+          salary = ${data.salary},
+          designation = ${data.designation}
+      WHERE id = ${data.id};
+    `;
+
+    return true;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error editing Teacher:", error);
+      throw new Error(error.message);
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Unknown error");
+    }
   }
 }

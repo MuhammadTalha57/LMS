@@ -12,7 +12,11 @@ export default function AddTeacherForm() {
       await addTeacher(userData);
       toast.success("Added Successfully");
     } catch (error) {
-      toast.error("Add Operation Failed");
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Add Operation Failed due to Unknown Error");
+      }
     }
   };
 

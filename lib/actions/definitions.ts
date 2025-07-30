@@ -29,7 +29,15 @@ export interface FieldConfig {
   max?: number; // For numbers
   options?: { value: string; label: string }[];
   defaultValue?: string | number | boolean;
+  readOnly?: boolean;
 }
+
+export type DataColumn = {
+  header: string;
+  accessor: string;
+  className?: string; // Optional custom styles like width
+};
+
 
 export const addTeacherFormFields: FieldConfig[] = [
   {
@@ -37,8 +45,6 @@ export const addTeacherFormFields: FieldConfig[] = [
     label: "ID",
     type: "number",
     required: true,
-    min: 100000,
-    max: 999999,
     placeholder: "Enter ID",
   },
   {
@@ -85,3 +91,6 @@ export const addTeacherFormFields: FieldConfig[] = [
     placeholder: "Enter Designation",
   },
 ];
+
+export const editTeacherFormFields = addTeacherFormFields.map(field => ({ ...field }));
+editTeacherFormFields[0].readOnly = true;

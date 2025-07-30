@@ -12,6 +12,7 @@ export default function UsePopupForm({
   formDescription,
   formSubmitBtnText,
   formFields,
+  defaultValues = {},
   onSubmit,
 }: {
   btnText: string;
@@ -20,6 +21,7 @@ export default function UsePopupForm({
   formDescription: string;
   formSubmitBtnText: string;
   formFields: FieldConfig[];
+  defaultValues?: Record<string, any>;
   onSubmit: (data: Record<string, any>) => Promise<void>;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -27,7 +29,10 @@ export default function UsePopupForm({
   return (
     <div className="w-full flex flex-col items-center justify-center">
       <Button
-        onClick={() => setDialogOpen(true)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setDialogOpen(true);
+        }}
         className="flex items-center gap-2"
       >
         <BtnIcon className="w-4 h-4" />
@@ -41,6 +46,7 @@ export default function UsePopupForm({
         description={formDescription}
         submitButtonText={formSubmitBtnText}
         fields={formFields}
+        defaultValues={defaultValues}
       />
     </div>
   );
