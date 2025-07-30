@@ -2,16 +2,13 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Dashboard from "@/components/ui/dashboard";
 import {
-  addTeacher,
   getTeacherDetails,
   getUserNameById,
   teacherSearchQuery,
 } from "@/lib/actions/queries";
 import { signout } from "@/lib/actions/auth";
-import Search from "@/components/ui/search";
 import SearchTable from "@/components/ui/searchTable";
 import AddTeacherForm from "@/components/ui/addTeacherForm";
-import { addTeacherFormFields } from "@/lib/actions/definitions";
 
 export default async function DashboardPage({
   params,
@@ -46,9 +43,7 @@ export default async function DashboardPage({
             categories={["Id", "Name", "Department", "Year", "Course"]}
             searchQuery={teacherSearchQuery}
             modifiable={modifiable}
-            addQuery={addTeacher}
             descQuery={getTeacherDetails}
-            formFields={addTeacherFormFields}
           ></SearchTable>
         </div>
       }
