@@ -1,5 +1,3 @@
-import { type FieldConfig } from "@/components/ui/popupForm";
-
 export type User = {
   id: string;
   role: "student" | "teacher" | "admin";
@@ -9,6 +7,28 @@ export type User = {
 export interface AuthCredentials {
   id: string;
   password: string;
+}
+
+export interface FieldConfig {
+  name: string;
+  label: string;
+  type:
+    | "text"
+    | "email"
+    | "password"
+    | "number"
+    | "textarea"
+    | "select"
+    | "checkbox";
+  placeholder?: string;
+  description?: string;
+  required?: boolean;
+  minLength?: number; // For strings
+  maxLength?: number; // For strings
+  min?: number; // For numbers
+  max?: number; // For numbers
+  options?: { value: string; label: string }[];
+  defaultValue?: string | number | boolean;
 }
 
 export const addTeacherFormFields: FieldConfig[] = [

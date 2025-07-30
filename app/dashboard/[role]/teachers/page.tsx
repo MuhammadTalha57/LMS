@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import Dashboard from "@/components/ui/dashboard";
 import {
   addTeacher,
-  addUser,
   getTeacherDetails,
   getUserNameById,
   teacherSearchQuery,
@@ -11,6 +10,7 @@ import {
 import { signout } from "@/lib/actions/auth";
 import Search from "@/components/ui/search";
 import SearchTable from "@/components/ui/searchTable";
+import AddTeacherForm from "@/components/ui/addTeacherForm";
 import { addTeacherFormFields } from "@/lib/actions/definitions";
 
 export default async function DashboardPage({
@@ -28,6 +28,8 @@ export default async function DashboardPage({
     redirect("/unauthorized");
   }
 
+  const modifiable: boolean = role === "admin";
+
   const userName = await getUserNameById(session.user.id);
   return (
     <Dashboard
@@ -37,10 +39,13 @@ export default async function DashboardPage({
       backBtnHidden={false}
       children={
         <div>
+          {/* Add Teacher Button */}
+          {modifiable && <AddTeacherForm></AddTeacherForm>}
+
           <SearchTable
             categories={["Id", "Name", "Department", "Year", "Course"]}
             searchQuery={teacherSearchQuery}
-            modifiable={true}
+            modifiable={modifiable}
             addQuery={addTeacher}
             descQuery={getTeacherDetails}
             formFields={addTeacherFormFields}

@@ -163,7 +163,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { type FieldConfig } from "@/components/ui/popupForm";
+import { FieldConfig } from "@/lib/actions/definitions";
 
 type entity = {
   id: string;
@@ -204,20 +204,15 @@ function formatFieldValue(key: string, value: any): string {
 export default function SearchTable({
   categories,
   searchQuery,
-  modifiable,
-  addQuery,
   descQuery,
-  formFields,
+  modifiable,
 }: {
   categories: string[];
   searchQuery: (searchData: Record<string, string>) => Promise<any>;
-  modifiable: boolean;
-  addQuery: (userData: Record<string, any>) => Promise<any>;
   descQuery: (id: string) => Promise<any>;
-  formFields: FieldConfig[];
+  modifiable: boolean;
 }) {
   const [result, setResult] = useState<entity[]>([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [descDialogOpen, setDescDialogOpen] = useState(false);
   const [descDialogData, setDescDialogData] = useState<Record<
     string,
@@ -228,15 +223,6 @@ export default function SearchTable({
   const handleSearch = async (searchData: Record<string, string>) => {
     const data = await searchQuery(searchData);
     setResult(data);
-  };
-
-  const handleAdd = async (userData: Record<string, any>) => {
-    try {
-      await addQuery(userData);
-      toast.success("Added Successfully");
-    } catch (error) {
-      toast.error("Add Operation Failed");
-    }
   };
 
   const handleRowClick = async (index: number) => {
@@ -259,27 +245,6 @@ export default function SearchTable({
 
   return (
     <div className="flex flex-col items-center space-y-4">
-      {modifiable && (
-        <div className="w-full flex flex-col items-center justify-center">
-          <Button
-            onClick={() => setDialogOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <IconPlus className="w-4 h-4" />
-            Add
-          </Button>
-          <PopupForm
-            open={dialogOpen}
-            onOpenChange={setDialogOpen}
-            onSubmit={handleAdd}
-            title="Add"
-            description="Fill in the details below."
-            submitButtonText="Add"
-            fields={formFields}
-          />
-        </div>
-      )}
-
       {/* Details Dialog */}
       <Dialog open={descDialogOpen} onOpenChange={handleCloseDescDialog}>
         <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">

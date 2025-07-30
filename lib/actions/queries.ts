@@ -31,9 +31,9 @@ export async function getUserNameById(id: string) {
   if (role === "admin") {
     data = await sql`SELECT name FROM admin WHERE id = ${id}`;
   } else if (role === "teacher") {
-    data = await sql`SELECT name FROM teacher WHERE id = ${id}`;
+    data = await sql`SELECT name FROM teachers WHERE id = ${id}`;
   } else if (role === "student") {
-    data = await sql`SELECT name FROM student WHERE id = ${id}`;
+    data = await sql`SELECT name FROM students WHERE id = ${id}`;
   } else {
     console.log("Role Not Found");
   }

@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { FieldConfig } from "@/lib/actions/definitions";
 import {
   Dialog,
   DialogContent,
@@ -31,29 +32,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-
-// Enhanced field configuration interface
-export interface FieldConfig {
-  name: string;
-  label: string;
-  type:
-    | "text"
-    | "email"
-    | "password"
-    | "number"
-    | "textarea"
-    | "select"
-    | "checkbox";
-  placeholder?: string;
-  description?: string;
-  required?: boolean;
-  minLength?: number; // For strings
-  maxLength?: number; // For strings
-  min?: number; // For numbers
-  max?: number; // For numbers
-  options?: { value: string; label: string }[];
-  defaultValue?: string | number | boolean;
-}
 
 export interface AddUserDialogProps {
   open: boolean;
