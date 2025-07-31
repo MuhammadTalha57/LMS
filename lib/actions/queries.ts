@@ -227,3 +227,41 @@ export async function editTeacher(data: Record<string, any>) {
     }
   }
 }
+
+export async function deleteUser(data: Record<string, any>) {
+const sql = neon(`${process.env.DATABASE_URL}`);
+  try {
+    const result = await sql`DELETE FROM users WHERE id = ${data.id}`;
+  }
+  catch (error) {
+    if(error instanceof Error) {
+      console.error("Error Deleting User", error);
+      throw error;
+    }
+    else {
+      console.error("Unknow Error occured while Deleting User", error);
+      throw error;
+    }
+  }
+}
+
+export async function deleteTeacher(data: Record<string, any>) {
+const sql = neon(`${process.env.DATABASE_URL}`);
+  try {
+    // First, delete from the `teachers` table
+    await sql`DELETE FROM teachers WHERE id = ${data.id}`;
+
+    // Then, delete the user record
+    await deleteUser(data);
+  }
+  catch (error) {
+    if(error instanceof Error) {
+      console.error("Error Deleting Teacher", error);
+      throw error;
+    }
+    else {
+      console.error("Unknow Error occured while Deleting Teacher", error);
+      throw error;
+    }
+  }
+}

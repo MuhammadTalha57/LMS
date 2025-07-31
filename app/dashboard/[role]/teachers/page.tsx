@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Dashboard from "@/components/ui/dashboard";
 import {
+  deleteTeacher,
   editTeacher,
   getTeacherDetails,
   getUserNameById,
@@ -62,6 +63,7 @@ export default async function DashboardPage({
             editFormSubmitBtnText="Edit"
             editFormFields={editTeacherFormFields}
             onEdit={editTeacher}
+            delQuery={deleteTeacher}
           ></SearchTable>
         </div>
       }

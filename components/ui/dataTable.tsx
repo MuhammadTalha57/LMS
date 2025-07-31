@@ -15,6 +15,16 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
 import UsePopupForm from "./usePopupForm";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { AlertDialogFooter, AlertDialogHeader } from "./alert-dialog";
 
 export default function DataTable({
   tableCaption,
@@ -29,6 +39,7 @@ export default function DataTable({
   editFormSubmitBtnText,
   editFormFields,
   onEdit,
+  delQuery,
 }: {
   tableCaption: string;
   tableCols: DataColumn[];
@@ -42,12 +53,16 @@ export default function DataTable({
   editFormSubmitBtnText: string;
   editFormFields: FieldConfig[];
   onEdit: (data: Record<string, any>) => Promise<any>;
+  delQuery: (rowData: any) => Promise<any>;
 }) {
   const [descDialogOpen, setDescDialogOpen] = useState(false);
   const [descDialogData, setDescDialogData] = useState<Record<
     string,
     any
   > | null>(null);
+
+  const [delAlertOpen, setDelAlertOpen] = useState(false);
+  const [delRow, setDelRow] = useState<Record<string, any> | null>(null);
 
   const handleRowClick = async (index: number) => {
     try {
@@ -67,8 +82,54 @@ export default function DataTable({
     //setSelectedRowName("");
   };
 
+  const handleDelete = async () => {
+    if (delRow) {
+      try {
+        delQuery(delRow);
+        toast.success("Deleted Successfully");
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Delete Operation Failed due to unknown error");
+        }
+      }
+    }
+
+    setDelRow(null);
+  };
+
   return (
     <div>
+      <AlertDialog open={delAlertOpen}>
+        <AlertDialogTrigger></AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action can't be undone
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setDelAlertOpen(false);
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                handleDelete();
+                setDelAlertOpen(false);
+              }}
+            >
+              Yes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <NonEditableDialog
         title={descDialogTitle}
         description={descDialogDescription}
@@ -120,8 +181,17 @@ export default function DataTable({
                 </TableCell>
               )}
               {modifiable && (
-                <TableCell>
-                  <IconTrashXFilled></IconTrashXFilled>
+                <TableCell
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <IconTrashXFilled
+                    onClick={() => {
+                      setDelAlertOpen(true);
+                      setDelRow(row);
+                    }}
+                  ></IconTrashXFilled>
                 </TableCell>
               )}
             </TableRow>

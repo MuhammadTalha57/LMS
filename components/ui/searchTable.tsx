@@ -19,6 +19,7 @@ export default function SearchTable({
   editFormSubmitBtnText,
   editFormFields,
   onEdit,
+  delQuery,
 }: {
   categories: string[];
   searchQuery: (searchData: Record<string, string>) => Promise<any>;
@@ -33,6 +34,7 @@ export default function SearchTable({
   editFormSubmitBtnText: string;
   editFormFields: FieldConfig[];
   onEdit: (data: Record<string, any>) => Promise<any>;
+  delQuery: (rowData: any) => Promise<any>;
 }) {
   const [result, setResult] = useState<any>([]);
 
@@ -58,6 +60,7 @@ export default function SearchTable({
         editFormSubmitBtnText={editFormSubmitBtnText}
         editFormTitle={editFormTitle}
         onEdit={onEdit}
+        delQuery={delQuery}
       ></DataTable>
     </div>
   );
